@@ -4,50 +4,177 @@
 
 <PageTitle>Checker</PageTitle>
 
-<h1>Welcome To Checkers!</h1>
+
 
 @code {
 
-    @* create the chucker board object *@
+    @* create the checker board object *@
+
     CheckerBoard newBoard = new CheckerBoard(8, 8);
 
     @* create the checker object *@
     List<CheckerClass> blackCheckers = new List<CheckerClass>();
     List<CheckerClass> whiteCheckers = new List<CheckerClass>();
 
-    List<int> rowsPossible = new List<int>();
-    List<int> columnsPossible = new List<int>();
+    CheckerClass? activeChecker = null;
+
+    @* creating a list with touples *@
+    List<(int row, int column)> cellsPossible = new();
+
+    @* List<int> rowsPossible = new List<int>(); *@
+    @* List<int> columnsPossible = new List<int>(); *@
+
+    @* Evaluate the cells around the checker *@
+
     void EvaluateCheckerSpots()
-    { 
-        rowsPossible.Clear();
-        columnsPossible.Clear();
-        if( activeChecker != null )
+
+    {
+        cellsPossible.Clear();
+
+        @* columnsPossible.Clear(); *@
+        if (activeChecker != null)
         {
-            rowsPossible.Add( activeChecker.Row +
-                ( 1 * ( activeChecker.Direction == CheckerDirection.Down ? 1 : -1 )));
-            columnsPossible.Add( activeChecker.Column - 1 );
-            columnsPossible.Add( activeChecker.Column + 1 );
+            List<int> rowsPossible = new List<int>();
+            if (activeChecker.Direction == CheckerDirection.Down ||
+            activeChecker.Direction == CheckerDirection.Both)
+            {
+                rowsPossible.Add(activeChecker.Row + 1);
+            }
+
+            if (activeChecker.Direction == CheckerDirection.Up ||
+            activeChecker.Direction == CheckerDirection.Both)
+            {
+                rowsPossible.Add(activeChecker.Row - 1);
+            }
+            @* add only the possable cells that the checker can move using the function below to the cellsPossible list (row,
+                column) *@
+            foreach (int row in rowsPossible)
+            {
+                EvaluateSpot(row, activeChecker.Column - 1);
+
+                EvaluateSpot(row, activeChecker.Column + 1);
+            }
         }
     }
 
-    void MoveChecker( int row, int column )
+
+
+    void EvaluateSpot(int row, int column, bool firstTimeJump = true)
+
     {
-        Console.WriteLine( "MoveChecker" );
-        bool canMoveHere = rowsPossible.Contains( row ) && columnsPossible.Contains( column );
-        if( !canMoveHere )
+        @* if there is black checler at that column the blackckecer will have value else it will be null *@
+        var blackChecker = blackCheckers.FirstOrDefault(n => n.Column == column && n.Row == row);
+
+        var whiteChecker = whiteCheckers.FirstOrDefault(n => n.Column == column && n.Row == row);
+
+        if (blackChecker == null && whiteChecker == null)
+        {
+            cellsPossible.Add((row, column));
+        }
+        @* Jump the checker *@
+
+        else if (firstTimeJump)
+        {
+        
+            {
+                if ((whiteTurn && blackChecker != null) || (!whiteTurn && whiteChecker != null))
+                {
+                    int coulmnDiff = column - activeChecker.Column;
+                    @* if (coulmnDiff < 0)
+                    {
+                        coulmnDiff--;
+                    }
+                    else
+                    {
+                        coulmnDiff++;
+                    } *@
+
+                    int rowDiff = row - activeChecker.Row;
+                    @* if (rowDiff < 0)
+                    {
+                        rowDiff--;
+                    }
+                    else
+                    {
+                        rowDiff++;
+                    } *@
+                    EvaluateSpot(row + rowDiff, column + coulmnDiff);
+                }
+            }
+        }
+    }
+
+
+
+
+
+    void MoveChecker(int row, int column)
+    {
+        if (activeChecker != null)
+        {
+            Console.WriteLine($"MoveChecker {activeChecker.Color} {activeChecker.Direction} {whiteCheckers.Count()} {blackCheckers.Count()}");
+        }
+
+        bool canMoveHere = cellsPossible.Contains((row, column));
+
+        if (!canMoveHere)
         {
             return;
         }
-        if( activeChecker != null )
+        if (activeChecker != null)
         {
+            
+
+            @* remove cheker after jump *@
+
+            if (Math.Abs(activeChecker.Column - column) == 2)
+            {
+                int jumpColumn = (activeChecker.Column + column) / 2;
+                int jumpRow = (activeChecker.Row + row) / 2;
+                @* finding which checker is being jumped so we can remove it*@
+                var blackchecker = blackCheckers.FirstOrDefault(n => n.Row == jumpRow && n.Column == jumpColumn);
+                @* remove the chceker from the board *@
+                if (blackchecker != null)
+                {
+                    blackCheckers.Remove(blackchecker);
+                }
+
+                @* finding which checker is being jumped so we can remove it*@
+                var whitechecker = whiteCheckers.FirstOrDefault(n => n.Row == jumpRow && n.Column == jumpColumn);
+                @* remove the chceker from the board *@
+                if (whitechecker != null)
+                {
+                    whiteCheckers.Remove(whitechecker);
+                }
+                if (activeChecker != null)
+        {
+            Console.WriteLine($"Count {activeChecker.Color}, {whiteCheckers.Count()}, {blackCheckers.Count()}");
+        }
+            }
+            @* set the chceker postion *@
             activeChecker.Column = column;
             activeChecker.Row = row;
+            
+            @* we will check if the checker is at the last row if true we will set the direction to both *@
+            @* chcek the checker color white and it at the last row -> number 0 *@
+            @* update the checker to a king *@
+            if (activeChecker.Row == 0 && activeChecker.Color == "white")
+            {
+                activeChecker.Direction = CheckerDirection.Both;
+            }
+
+            if (activeChecker.Row == 7 && activeChecker.Color == "black")
+            {
+                activeChecker.Direction = CheckerDirection.Both;
+            }
+            
             activeChecker = null;
+            @* switchs the turn *@
+            whiteTurn = !whiteTurn;
             EvaluateCheckerSpots();
         }
     }
 
-    CheckerClass? activeChecker = null;
 
 
     protected override void OnInitialized()
@@ -65,6 +192,7 @@
                     Direction = CheckerDirection.Down
                 });
             }
+
         }
         @* white Checkers *@
         for (int i = 5; i < 8; i++)
@@ -82,41 +210,87 @@
         }
 
     }
-}
+
+    @* the turn for checkers *@
+
+    bool whiteTurn = true;
 
 
 
-<div class="board">
+    void checkerClick(CheckerClass checker)
 
-    @for (int i = 0; i < newBoard.Row; i++)
     {
-        int localI = i;
-        <div class="Row">
+        if (whiteTurn && checker.Color == "black")
+            return;
+        if (!whiteTurn && checker.Color == "white")
+            return;
+        activeChecker = checker;
+        EvaluateCheckerSpots();
+    }
+}
+<div id="checkerBody">
 
-            @for (int j = 0; j < newBoard.Column; j++)
+    <div id ="leftSide">
+        @if(whiteCheckers.Count == 0)
+        {
+            <h1> Black Checkers Win!</h1>
+        }
+        else if(blackCheckers.Count == 0)
+        {
+            <h1> White Checkers Win!</h1>
+        }
+        else{
+            <h1>Welcome to Checkers!</h1>
+            @if( whiteTurn )
             {
-                int localJ =j;
-                var checker = blackCheckers.FirstOrDefault(n => n.Column == j && n.Row == i);
-                if (checker == null)
-                {
-                    checker = whiteCheckers.FirstOrDefault(n => n.Column == j && n.Row == i);
-                }
+                <h3>White Turn</h3>
+            }
+            else{
+                <h3>Black Turn</h3>
+            }
+        }
 
-                bool canMoveHere = rowsPossible.Contains( i ) && columnsPossible.Contains( j );
+        <div class="board">
 
-                <div @onclick="() => MoveChecker( localI, localJ )" class = "cell @( canMoveHere ? "active" : "" )">
-                    @if (checker != null)
+            @for (int i = 0; i < newBoard.Row; i++)
+
+            {
+                int localI = i;
+                <div class="Row">
+                    @for (int j = 0; j < newBoard.Column; j++)
                     {
-                    <div @onclick="() => { activeChecker = checker;
-                                        activeChecker.CheckPiece();
-                                        EvaluateCheckerSpots();
-                                        }"
-                        class="checker @checker.Color @(checker == activeChecker ? "active" : "" )" ></div>
+                        int localJ = j;
+                        var checker = blackCheckers.FirstOrDefault(n => n.Column == j && n.Row == i);
+                        if (checker == null)
+                        {
+                            checker = whiteCheckers.FirstOrDefault(n => n.Column == j && n.Row == i);
+                        }
+
+                        bool canMoveHere = cellsPossible.Contains((i, j));
+
+                        <div @onclick="() => MoveChecker( localI, localJ )" class="cell @( canMoveHere ? "active" : "" )">
+                            @if (checker != null)
+                            {
+                                <div @onclick="() => checkerClick(checker)"
+                        class="checker @checker.Color @(checker == activeChecker ? "active" : "" )">
+                                    @if (checker.Direction == CheckerDirection.Both)
+                                    {
+                                        <div class="king"></div>
+                                    }
+                                </div>
+                            }
+                        </div>
                     }
                 </div>
-
             }
         </div>
-    }
+
+    </div>
+
+    <div id="rightSide">
+        <p><b>Remaining:</b></p>
+        <p>White: @whiteCheckers.Count</p>
+        <p>Black: @blackCheckers.Count</p>
+    </div>
 
 </div>
