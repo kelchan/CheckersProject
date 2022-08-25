@@ -6,10 +6,10 @@
 .board{
     height: 644px;
     width: 644px;
-    border: 2px solid rgb(255, 0, 0);
+    border: 3px solid black(255, 0, 0);
 }
 
-.Cell{
+.cell{
     height: 80px;
     width: 80px;
     border: 2px solid black;
@@ -21,27 +21,27 @@
     justify-content: center;
 }
 
-.test{
+.test {
     color: aquamarine;
 }
 
-.Cell.active {
-    border: 3px solid rgb(251, 255, 0);
+.cell.active {
+    border: 4px solid rgb(251, 255, 0);
 }
 
-.Row:nth-child(2n) .Cell:nth-child(2n+1){
+.Row:nth-child(2n) .cell:nth-child(2n+1){
 background-color: #b32121;
 }
 
-.Row:nth-child(2n) .Cell:nth-child(2n){
+.Row:nth-child(2n) .cell:nth-child(2n){
 background-color: #d7b68b;
 }
 
-.Row:nth-child(2n+1) .Cell:nth-child(2n+1){
+.Row:nth-child(2n+1) .cell:nth-child(2n+1){
 background-color: #d7b68b;
 }
 
-.Row:nth-child(2n+1) .Cell:nth-child(2n){
+.Row:nth-child(2n+1) .cell:nth-child(2n){
 background-color: #b32121;
 }
 
@@ -61,5 +61,5 @@ background-color: #b32121;
 }
 
 .checker.active {
-    border: 3px solid rgb(251, 255, 0);
+    border: 4px solid cyan;
 }

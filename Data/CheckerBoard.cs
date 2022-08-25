@@ -3,7 +3,7 @@ namespace CheckersProject.Pages;
 
 public class CheckerBoard
 {
-    public int[,] BaordArray {get; set;}
+    public int[,] BoardArray {get; set;}
     public int Column {get; set;}
     public int Row {get; set;}
 

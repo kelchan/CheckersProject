@@ -4,16 +4,48 @@
 
 <PageTitle>Checker</PageTitle>
 
-<h1>Hello</h1>
+<h1>Welcome To Checkers!</h1>
 
 @code {
 
     @* create the chucker board object *@
-    CheckerBoard newBaord = new CheckerBoard(8, 8);
+    CheckerBoard newBoard = new CheckerBoard(8, 8);
 
     @* create the checker object *@
     List<CheckerClass> blackCheckers = new List<CheckerClass>();
     List<CheckerClass> whiteCheckers = new List<CheckerClass>();
+
+    List<int> rowsPossible = new List<int>();
+    List<int> columnsPossible = new List<int>();
+    void EvaluateCheckerSpots()
+    { 
+        rowsPossible.Clear();
+        columnsPossible.Clear();
+        if( activeChecker != null )
+        {
+            rowsPossible.Add( activeChecker.Row +
+                ( 1 * ( activeChecker.Direction == CheckerDirection.Down ? 1 : -1 )));
+            columnsPossible.Add( activeChecker.Column - 1 );
+            columnsPossible.Add( activeChecker.Column + 1 );
+        }
+    }
+
+    void MoveChecker( int row, int column )
+    {
+        Console.WriteLine( "MoveChecker" );
+        bool canMoveHere = rowsPossible.Contains( row ) && columnsPossible.Contains( column );
+        if( !canMoveHere )
+        {
+            return;
+        }
+        if( activeChecker != null )
+        {
+            activeChecker.Column = column;
+            activeChecker.Row = row;
+            activeChecker = null;
+            EvaluateCheckerSpots();
+        }
+    }
 
     CheckerClass? activeChecker = null;
 
@@ -56,12 +88,12 @@
 
 <div class="board">
 
-    @for (int i = 0; i < newBaord.Row; i++)
+    @for (int i = 0; i < newBoard.Row; i++)
     {
         int localI = i;
         <div class="Row">
 
-            @for (int j = 0; j < newBaord.Column; j++)
+            @for (int j = 0; j < newBoard.Column; j++)
             {
                 int localJ =j;
                 var checker = blackCheckers.FirstOrDefault(n => n.Column == j && n.Row == i);
@@ -70,11 +102,14 @@
                     checker = whiteCheckers.FirstOrDefault(n => n.Column == j && n.Row == i);
                 }
 
-                <div class="Cell">
+                bool canMoveHere = rowsPossible.Contains( i ) && columnsPossible.Contains( j );
+
+                <div @onclick="() => MoveChecker( localI, localJ )" class = "cell @( canMoveHere ? "active" : "" )">
                     @if (checker != null)
                     {
                     <div @onclick="() => { activeChecker = checker;
-                                        activeChecker.MovePiece();
+                                        activeChecker.CheckPiece();
+                                        EvaluateCheckerSpots();
                                         }"
                         class="checker @checker.Color @(checker == activeChecker ? "active" : "" )" ></div>
                     }

@@ -12,21 +12,41 @@ public class CheckerClass
         return true;
     }
 
-    public void MovePiece()
+    public void CheckPiece()
     {
         Console.WriteLine( Row + ", " + Column );
-        if( Color == "Black" )
+        if( Color == "black" )
         {
-            
+            Console.WriteLine( "black" );
+        }
+        if( Color == "white" )
+        {
+            Console.WriteLine( "white" );
         }
     }
+    
+    // public void EvaluateCheckerSpots()
+    // {
+    //     List<int> rowsPossible = new List<int>();
+    //     List<int> columnsPossible = new List<int>();    
+
+    //     rowsPossible.Clear();
+    //     columnsPossible.Clear();
+    //     if( this != null )
+    //     {
+    //         rowsPossible.Add( Row +
+    //             ( 1 * ( Direction == CheckerDirection.Down ? 1 : -1 )));
+    //         columnsPossible.Add( Column - 1 );
+    //         columnsPossible.Add( Column + 1 );
+    //     }
+    // }
 
 }
-
 public enum CheckerDirection
 {
     Down, Up, Both
 }
+
 
     // CHECKERBOARD INDEX
     // [0,0] [0,1] [0,2] [0,3] [0,4] [0,5] [0,6] [0,7] [0,8]
